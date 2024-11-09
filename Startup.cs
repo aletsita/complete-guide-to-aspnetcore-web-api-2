@@ -1,4 +1,6 @@
 using Libreria.Data;
+using Libreria.Data.Models;
+using Libreria_EMO.Data.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -18,7 +20,7 @@ namespace Libreria
 {
     public class Startup
     {
-        public string ConnectionString {  get; set; }
+        public string ConnectionString { get; set; }
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -31,10 +33,12 @@ namespace Libreria
         public void ConfigureServices(IServiceCollection services)
         {
 
-
             services.AddControllers();
             //Configurar DBContext con SQL
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(ConnectionString));
+
+            //Configurar el servicio para que pueda ser usado
+            services.AddTransient<BooksService>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Libreria", Version = "v1" });
@@ -61,6 +65,8 @@ namespace Libreria
             {
                 endpoints.MapControllers();
             });
+
+            Libreria.Data.AppDbInitializer.Seed(app);
         }
     }
 }
